@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Data.SqlClient;
 
 namespace LabExer_Registration
 {
@@ -145,10 +147,30 @@ namespace LabExer_Registration
                 StudentInformationClass.SetContactNo = ContactNo(txtContactNo.Text);
                 StudentInformationClass.SetAge = Age(txtAge.Text);
                 StudentInformationClass.SetBirthday = datePickerBirthday.Value.ToString("yyyy-MM-dd");
+                using (SqlConnection dane = new SqlConnection("Data Source = MSI\\SQLEXPRESS;Initial Catalog=Dane;Integrated Security=True"))
+                {
+                    dane.Open();
+                    string query = "INSERT INTO Students (StudentNo,FirstName,LastName,MiddleInitial,Age,Gender,Program,ContactNo,Birthday)" +
+                                   "VALUES(@StudentNo,@FirstName,@LastName,@MiddleInitial,@Age,@Gender,@Program,@ContactNo,@Birthday)";
+                    using (SqlCommand cmd = new SqlCommand(query, dane))
+                    {
+                        cmd.Parameters.AddWithValue("@StudentNo", txtStudentNo.Text);
+                        cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text);
+                        cmd.Parameters.AddWithValue("@LastName", txtLastName.Text);
+                        cmd.Parameters.AddWithValue("@MiddleInitial", txtMiddleInitial.Text);
+                        cmd.Parameters.AddWithValue("@Age", txtAge.Text);
+                        cmd.Parameters.AddWithValue("@Gender", cbGender.Text);
+                        cmd.Parameters.AddWithValue("@Program", cbPrograms.Text);
+                        cmd.Parameters.AddWithValue("@ContactNo", txtContactNo.Text);
+                        cmd.Parameters.AddWithValue("@Birthday", datePickerBirthday.Value);
+                        cmd.ExecuteNonQuery();
+                    }
+                    dane.Close();
+                }
 
-
-                frmConfirmation frm = new frmConfirmation();
+                    frmConfirmation frm = new frmConfirmation();
                 frm.ShowDialog();
+
             }
 
             catch (FormatException fex)
